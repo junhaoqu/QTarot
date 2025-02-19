@@ -1,6 +1,9 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var showingQuestionInput = false
+    @State private var selectedMode: ReadingMode = .randomReading // 使用 Models 中定义的 ReadingMode
+    
     var body: some View {
         NavigationStack {
             VStack(spacing: 30) {
@@ -65,10 +68,4 @@ struct MenuButton: View {
 
 #Preview {
     ContentView()
-}
-
-// Reading mode enum to determine the type of reading
-enum ReadingMode {
-    case randomReading
-    case questionReading(String)
 }

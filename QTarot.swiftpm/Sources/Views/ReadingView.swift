@@ -4,53 +4,57 @@ struct ReadingView: View {
     let card: TarotCard
     let mode: ReadingMode
     @Environment(\.dismiss) private var dismiss
-    @State private var interpretation: String = ""
-    @State private var isLoading = true
+    @State private var isRevealed = false
     
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
-                // Using SF Symbol as placeholder until we have card images
-                Image(systemName: "questionmark.app.fill")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: 300)
-                    .padding()
-                    .background(Color.secondary.opacity(0.2))
-                    .cornerRadius(12)
-                
-                Text(card.name)
-                    .font(.title)
-                    .fontWeight(.bold)
-                
-                if isLoading {
-                    ProgressView()
-                        .padding()
-                } else {
-                    Text(interpretation)
-                        .padding()
-                        .multilineTextAlignment(.center)
+                // 使用 AsyncImage 异步加载图片
+                AsyncImage(url: URL(string: card.imageName)) { image in
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                } placeholder: {
+                    // 使用之前的卡背作为占位图
+                    Image("card_back")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
                 }
+                .frame(height: 300)
+                .shadow(radius: 10)
                 
-                Button("Done") {
-                    dismiss()
+                VStack(alignment: .leading, spacing: 16) {
+                    Text(card.name)
+                        .font(.title)
+                        .fontWeight(.bold)
+                    
+                    // 使用 transition 让内容优雅地显示
+                    if isRevealed {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Meaning:")
+                                .font(.headline)
+                            Text(card.meaning)
+                                .font(.body)
+                            
+                            if case .fullReading = mode {
+                                Text("Reversed Meaning:")
+                                    .font(.headline)
+                                    .padding(.top, 8)
+                                Text(card.reversedMeaning)
+                                    .font(.body)
+                            }
+                        }
+                        .transition(.opacity.combined(with: .move(edge: .bottom)))
+                    }
                 }
-                .buttonStyle(.borderedProminent)
                 .padding()
             }
             .padding()
         }
         .onAppear {
-            // Here we'll later add the AI interpretation logic
-            // For now, just show the basic meaning
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                switch mode {
-                case .randomReading:
-                    interpretation = card.meaning
-                case .questionReading(let question):
-                    interpretation = "Question: \(question)\n\nBased on \(card.name): \(card.meaning)"
-                }
-                isLoading = false
+            // 稍微延迟显示内容，让转场动画完成
+            withAnimation(.easeOut(duration: 0.3).delay(0.1)) {
+                isRevealed = true
             }
         }
     }

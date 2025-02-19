@@ -23,10 +23,6 @@ struct TarotCardView: View {
                 )
                 .offset(y: isFloating ? -3 : 0)
             
-            Text(card.name)
-                .font(.title3)
-                .fontWeight(.medium)
-                .foregroundColor(.primary)
         }
         .onAppear {
             withAnimation(
