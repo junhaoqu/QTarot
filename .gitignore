@@ -1,1 +1,54 @@
- 
+# Xcode
+.DS_Store
+xcuserdata/
+*.xcscmblueprint
+*.xccheckout
+DerivedData/
+*.moved-aside
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+*.hmap
+
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# Assets
+Assets.xcassets/card_back.imageset/*.jpg
+Assets.xcassets/card_back.imageset/*.png
+Assets.xcassets/card_back.imageset/*.jpeg
+QTarot.swiftpm/Assets.xcassets/card_back.imageset/*.jpg
+QTarot.swiftpm/Assets.xcassets/card_back.imageset/*.png
+QTarot.swiftpm/Assets.xcassets/card_back.imageset/*.jpeg
+
+# 如果将来添加更多卡片图片，可以使用通配符
+QTarot.swiftpm/Assets.xcassets/**/*.jpg
+QTarot.swiftpm/Assets.xcassets/**/*.png
+QTarot.swiftpm/Assets.xcassets/**/*.jpeg
+
+# Playgrounds
+timeline.xctimeline
+playground.xcworkspace
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.Spotlight-V100
+.Trashes
+
+# iOS
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Swift Package Manager
+Package.resolved 

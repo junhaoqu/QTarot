@@ -30,13 +30,19 @@ let package = Package(
                 .landscapeRight,
                 .landscapeLeft,
                 .portraitUpsideDown(.when(deviceFamilies: [.pad]))
-            ]
+            ],
+            capabilities: [],
+            additionalInfoPlistContentFilePath: nil
         )
     ],
+    dependencies: [],
     targets: [
         .executableTarget(
             name: "AppModule",
-            path: "."
+            path: ".",
+            resources: [
+                .process("Assets.xcassets")
+            ]
         )
     ],
     swiftLanguageVersions: [.version("6")]
