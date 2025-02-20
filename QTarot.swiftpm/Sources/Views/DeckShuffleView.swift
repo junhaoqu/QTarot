@@ -3,7 +3,7 @@ import SwiftUI
 struct DeckShuffleView: View {
     @Environment(\.dismiss) private var dismiss
     
-    // 模拟 14 张卡，前 7 张在“上扇”，后 7 张在“下扇”
+    // 模拟 14 张卡，前 7 张在"上扇"，后 7 张在"下扇"
     @State private var deck: [String] = Array(repeating: "card_back", count: 14)
     
     // 卡片位置信息
@@ -36,8 +36,12 @@ struct DeckShuffleView: View {
     
     var body: some View {
         ZStack {
-            // 背景
-            Color.black.ignoresSafeArea()
+            // 添加桌面背景
+            Image("table")
+                .resizable()
+                .scaledToFill()
+                .ignoresSafeArea()
+                .overlay(Color.black.opacity(0.8)) // 添加轻微暗化效果
             
             // 卡片层
             ZStack {
@@ -50,7 +54,6 @@ struct DeckShuffleView: View {
                         .rotationEffect(position.rotation)
                         .scaleEffect(position.scale)
                         .offset(position.offset)
-                        // 1) 添加阴影
                         .shadow(color: .black.opacity(0.4), radius: 5, x: 2, y: 2)
                         .animation(.easeInOut(duration: 0.5), value: position)
                 }
@@ -67,11 +70,11 @@ struct DeckShuffleView: View {
                         .font(.custom("Papyrus", size: 20))
                         .foregroundColor(.white)
                         .padding(.horizontal, 40)
-                        .padding(.vertical, 15)
+                        .padding(.vertical, 12)
                         .background(Color.customGold.opacity(0.8))
                         .cornerRadius(10)
                 }
-                .padding(.bottom, 40)
+                .padding(.bottom, 20)
                 .disabled(isShuffling)
             }
         }
