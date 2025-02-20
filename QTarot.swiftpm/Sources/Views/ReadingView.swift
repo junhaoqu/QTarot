@@ -9,13 +9,14 @@ struct ReadingView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
-                // 使用 AsyncImage 异步加载图片
+                // Async image loading: if your imageName is a full URL,
+                // you can load from the network. Otherwise, replace with your local image logic.
                 AsyncImage(url: URL(string: card.imageName)) { image in
                     image
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                 } placeholder: {
-                    // 使用之前的卡背作为占位图
+                    // Fallback (e.g., card back)
                     Image("card_back")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
@@ -23,28 +24,57 @@ struct ReadingView: View {
                 .frame(height: 300)
                 .shadow(radius: 10)
                 
-                VStack(alignment: .leading, spacing: 16) {
+                // Card details
+                VStack(alignment: .leading, spacing: 12) {
                     Text(card.name)
                         .font(.title)
                         .fontWeight(.bold)
                     
-                    // 使用 transition 让内容优雅地显示
+                    // Use a transition so content fades/moves in
                     if isRevealed {
-                        VStack(alignment: .leading, spacing: 12) {
+                        // Core meaning (or "Attention:" for reversed)
+                        if !card.meaning.isEmpty {
                             Text("Meaning:")
                                 .font(.headline)
                             Text(card.meaning)
                                 .font(.body)
-                            
-                            if case .fullReading = mode {
-                                Text("Reversed Meaning:")
-                                    .font(.headline)
-                                    .padding(.top, 8)
-                                Text(card.reversedMeaning)
-                                    .font(.body)
-                            }
+                                .padding(.bottom, 8)
                         }
-                        .transition(.opacity.combined(with: .move(edge: .bottom)))
+                        
+                        // Daily life advice (empty for reversed cards)
+                        if !card.dailyLife.isEmpty {
+                            Text("Daily Life:")
+                                .font(.headline)
+                            Text(card.dailyLife)
+                                .font(.body)
+                                .padding(.bottom, 8)
+                        }
+                        
+                        // Relationship advice (empty for reversed cards)
+                        if !card.relationship.isEmpty {
+                            Text("Relationship:")
+                                .font(.headline)
+                            Text(card.relationship)
+                                .font(.body)
+                                .padding(.bottom, 8)
+                        }
+                        
+                        // Job/Financial/Professional advice (empty for reversed cards)
+                        if !card.job.isEmpty {
+                            Text("Job/Financial/Professional Life:")
+                                .font(.headline)
+                            Text(card.job)
+                                .font(.body)
+                                .padding(.bottom, 8)
+                        }
+                        
+                        // If user wants the reversed meaning in full reading mode
+                        if case .fullReading = mode, !card.reversedMeaning.isEmpty {
+                            Text("Reversed Meaning:")
+                                .font(.headline)
+                            Text(card.reversedMeaning)
+                                .font(.body)
+                        }
                     }
                 }
                 .padding()
@@ -52,10 +82,10 @@ struct ReadingView: View {
             .padding()
         }
         .onAppear {
-            // 稍微延迟显示内容，让转场动画完成
+            // Delay the reveal slightly to let the transition finish
             withAnimation(.easeOut(duration: 0.3).delay(0.1)) {
                 isRevealed = true
             }
         }
     }
-} 
+}

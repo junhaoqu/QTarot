@@ -6,7 +6,7 @@ struct TarotCardView: View {
     
     var body: some View {
         VStack(spacing: 8) {
-            Image("card_back") // 移除 decorative
+            Image("card_back")
                 .resizable()
                 .scaledToFit()
                 .frame(width: 260, height: 380)
@@ -22,7 +22,6 @@ struct TarotCardView: View {
                     y: isFloating ? 4 : 2
                 )
                 .offset(y: isFloating ? -3 : 0)
-            
         }
         .onAppear {
             withAnimation(
@@ -35,7 +34,22 @@ struct TarotCardView: View {
     }
 }
 
-// 添加金色
+// 添加金色扩展
 extension Color {
     static let gold = Color(red: 212/255, green: 175/255, blue: 55/255)
-} 
+}
+
+// Example preview
+#Preview {
+    NavigationView {
+        TarotCardView(card: TarotCard(
+            name: "The Fool",
+            imageName: "fool",
+            meaning: "New beginnings, spontaneity, and a leap of faith.",
+            dailyLife: "Embrace adventure and take fresh opportunities.",
+            relationship: "Be open and spontaneous in your connections.",
+            job: "Consider new ventures with cautious optimism.",
+            reversedMeaning: ""
+        ))
+    }
+}
