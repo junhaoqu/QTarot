@@ -2,7 +2,8 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var showingQuestionInput = false
-    @State private var selectedMode: ReadingMode = .randomReading // 使用 Models 中定义的 ReadingMode
+    @State private var question = ""
+    @State private var selectedMode: ReadingMode = .randomReading
     
     var body: some View {
         NavigationStack {
@@ -11,7 +12,27 @@ struct ContentView: View {
                     .font(.largeTitle)
                     .fontWeight(.bold)
                 
-                VStack(spacing: 20) {
+                VStack(spacing: 25) {
+                    // 问题输入按钮
+                    Button {
+                        showingQuestionInput = true
+                    } label: {
+                        Image("question_bg")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 100)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 15)
+                                    .stroke(Color.gold, lineWidth: 1)
+                            )
+                            .shadow(color: .black.opacity(0.3), radius: 10)
+                    }
+                    .sheet(isPresented: $showingQuestionInput) {
+                        QuestionInputView(question: $question)
+                            .presentationDetents([.medium])
+                    }
+                    
+                    // Start with a Card 按钮
                     NavigationLink {
                         TarotCardGridView(mode: .randomReading)
                     } label: {
@@ -20,8 +41,10 @@ struct ContentView: View {
                                  systemImage: "questionmark.app.fill")
                     }
                     
+                    // Ask a Question 按钮 - 使用 NavigationLink 而不是 sheet
                     NavigationLink {
-                        QuestionInputView()
+                        QuestionInputView(question: $question)
+                            .navigationBarBackButtonHidden(true)
                     } label: {
                         MenuButton(title: "Ask a Question", 
                                  subtitle: "Get guidance for your specific question",

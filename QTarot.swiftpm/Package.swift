@@ -17,6 +17,7 @@ let package = Package(
             name: "QTarot",
             targets: ["AppModule"],
             bundleIdentifier: "com.JunhaoQu.QTarot",
+            teamIdentifier: "7L67963378",
             displayVersion: "1.0",
             bundleVersion: "1",
             appIcon: .placeholder(icon: .calendar),
@@ -30,18 +31,18 @@ let package = Package(
                 .landscapeRight,
                 .landscapeLeft,
                 .portraitUpsideDown(.when(deviceFamilies: [.pad]))
-            ],
-            capabilities: [],
-            additionalInfoPlistContentFilePath: nil
+            ]
         )
     ],
-    dependencies: [],
     targets: [
         .executableTarget(
             name: "AppModule",
             path: ".",
             resources: [
                 .process("Assets.xcassets")
+            ],
+            swiftSettings: [
+                .unsafeFlags(["-enable-bare-slash-regex"])
             ]
         )
     ],

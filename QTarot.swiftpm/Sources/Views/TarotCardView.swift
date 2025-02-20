@@ -2,12 +2,14 @@ import SwiftUI
 
 struct TarotCardView: View {
     let card: TarotCard
+    let isCenter: Bool  // 添加这个属性来控制渲染质量
     @State private var isFloating = false
     
     var body: some View {
         VStack(spacing: 8) {
             Image("card_back")
                 .resizable()
+                .interpolation(isCenter ? .high : .medium)  // 控制图片渲染质量
                 .scaledToFit()
                 .frame(width: 260, height: 380)
                 .cornerRadius(15)
@@ -34,11 +36,6 @@ struct TarotCardView: View {
     }
 }
 
-// 添加金色扩展
-extension Color {
-    static let gold = Color(red: 212/255, green: 175/255, blue: 55/255)
-}
-
 // Example preview
 #Preview {
     NavigationView {
@@ -50,6 +47,6 @@ extension Color {
             relationship: "Be open and spontaneous in your connections.",
             job: "Consider new ventures with cautious optimism.",
             reversedMeaning: ""
-        ))
+        ), isCenter: true)
     }
 }

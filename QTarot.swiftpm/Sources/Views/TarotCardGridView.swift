@@ -11,6 +11,16 @@ struct TarotCardGridView: View {
     @State private var selectedCardRotation: Double = 0
     @State private var selectedCardScale: CGFloat = 1
     
+    // 添加预加载管理器
+    @StateObject private var imageLoader = ImagePreloader()
+    
+    // 添加可见卡片范围追踪
+    @State private var visibleCardIndices: Set<Int> = []
+    
+    // 添加中心卡片动画状态
+    @State private var centerCardScale: CGFloat = 1.0
+    @State private var centerCardGlow: CGFloat = 0.0
+    
     var body: some View {
         GeometryReader { geometry in
             let screenHeight = geometry.size.height
@@ -37,7 +47,7 @@ struct TarotCardGridView: View {
                         let distance = abs(adjustedOffset)
                         let isCenter = distance < cardSpacing / 2
                         
-                        TarotCardView(card: card)
+                        TarotCardView(card: card, isCenter: isCenter)
                             .frame(width: cardWidth, height: cardHeight)
                             .scaleEffect(scale(for: distance, in: screenHeight))
                             .offset(y: adjustedOffset)
@@ -63,6 +73,24 @@ struct TarotCardGridView: View {
                                 if distance < cardHeight / 4 {
                                     selectedCard = card
                                     animateCardSelection(screenHeight: screenHeight)
+                                }
+                            }
+                            .onChange(of: isCenter) { newValue in
+                                if newValue {
+                                    // 预加载当前卡片及其相邻卡片的图片
+                                    imageLoader.preloadImages(for: getAdjacentCards(index: index))
+                                    
+                                    // 添加成为中心卡片时的动画
+                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                                        centerCardScale = 1.05
+                                        centerCardGlow = 0.7
+                                    }
+                                } else if centerCardScale > 1.0 {
+                                    // 离开中心时的动画
+                                    withAnimation(.easeOut(duration: 0.2)) {
+                                        centerCardScale = 1.0
+                                        centerCardGlow = 0
+                                    }
                                 }
                             }
                     }
@@ -106,6 +134,11 @@ struct TarotCardGridView: View {
                 .presentationDetents([.large])
             }
         }
+        .onAppear {
+            // 预加载初始可见卡片
+            let initialCards = getInitialVisibleCards()
+            imageLoader.preloadImages(for: initialCards)
+        }
     }
     
     private func animateCardSelection(screenHeight: CGFloat) {
@@ -148,6 +181,25 @@ struct TarotCardGridView: View {
         let rotation = (distance / height) * maxRotation
         return min(max(rotation, -maxRotation), maxRotation)
     }
+    
+    // 获取相邻卡片
+    private func getAdjacentCards(index: Int) -> [TarotCard] {
+        let cards = TarotDeck.shared.cards
+        let prevIndex = (index - 1 + cards.count) % cards.count
+        let nextIndex = (index + 1) % cards.count
+        return [
+            cards[prevIndex],
+            cards[index],
+            cards[nextIndex]
+        ]
+    }
+    
+    // 获取初始可见卡片
+    private func getInitialVisibleCards() -> [TarotCard] {
+        let cards = TarotDeck.shared.cards
+        let centerIndex = cards.count / 2
+        return Array(cards[max(0, centerIndex-2)...min(cards.count-1, centerIndex+2)])
+    }
 }
 
 #Preview {
@@ -167,5 +219,32 @@ extension AnyTransition {
                 .combined(with: .opacity)
                 .animation(.easeOut(duration: 0.2))
         )
+    }
+}
+
+// 图片预加载管理器
+class ImagePreloader: ObservableObject {
+    private var loadedImages: Set<String> = []
+    private var imageCache = NSCache<NSString, UIImage>()
+    
+    func preloadImages(for cards: [TarotCard]) {
+        for card in cards {
+            if !loadedImages.contains(card.imageName) {
+                loadedImages.insert(card.imageName)
+                
+                // 异步加载图片
+                DispatchQueue.global(qos: .utility).async { [weak self] in
+                    if let url = URL(string: card.imageName),
+                       let data = try? Data(contentsOf: url),
+                       let image = UIImage(data: data) {
+                        self?.imageCache.setObject(image, forKey: card.imageName as NSString)
+                    }
+                }
+            }
+        }
+    }
+    
+    func getImage(for imageName: String) -> UIImage? {
+        return imageCache.object(forKey: imageName as NSString)
     }
 }
