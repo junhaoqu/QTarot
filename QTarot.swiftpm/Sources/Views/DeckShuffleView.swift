@@ -17,7 +17,7 @@ struct DeckShuffleView: View {
     @State private var showPopup = false
     
     // 卡片尺寸
-    let cardSize = CGSize(width: 140, height: 210)
+    let cardSize = CGSize(width: 200, height: 300)
     
     init() {
         var positions: [CardPosition] = []
@@ -35,34 +35,32 @@ struct DeckShuffleView: View {
     }
     
     var body: some View {
-        ZStack {
-            // 添加桌面背景
-            Image("table")
-                .resizable()
-                .scaledToFill()
-                .ignoresSafeArea()
-                .overlay(Color.black.opacity(0.8)) // 添加轻微暗化效果
-            
-            // 卡片层
+        GeometryReader { geometry in
             ZStack {
-                ForEach(cardPositions.indices, id: \.self) { index in
-                    let position = cardPositions[index]
-                    
-                    Image("card_back")
-                        .resizable()
-                        .frame(width: cardSize.width, height: cardSize.height)
-                        .rotationEffect(position.rotation)
-                        .scaleEffect(position.scale)
-                        .offset(position.offset)
-                        .shadow(color: .black.opacity(0.4), radius: 5, x: 2, y: 2)
-                        .animation(.easeInOut(duration: 0.5), value: position)
-                }
-            }
-            
-            // Shuffle 按钮
-            VStack {
-                Spacer()
+                // 背景
+                Image("table")
+                    .resizable()
+                    .scaledToFill()
+                    .ignoresSafeArea()
+                    .overlay(Color.black.opacity(0.8))
                 
+                // 卡片层
+                ZStack {
+                    ForEach(cardPositions.indices, id: \.self) { index in
+                        let position = cardPositions[index]
+                        
+                        Image("card_back")
+                            .resizable()
+                            .frame(width: cardSize.width, height: cardSize.height)
+                            .rotationEffect(position.rotation)
+                            .scaleEffect(position.scale)
+                            .offset(position.offset)
+                            .shadow(color: .black.opacity(0.4), radius: 5, x: 2, y: 2)
+                            .animation(.easeInOut(duration: 0.5), value: position)
+                    }
+                }
+                
+                // Shuffle 按钮 - 放在中间
                 Button {
                     performShuffle()
                 } label: {
@@ -74,18 +72,11 @@ struct DeckShuffleView: View {
                         .background(Color.customGold.opacity(0.8))
                         .cornerRadius(10)
                 }
-                .padding(.bottom, 20)
                 .disabled(isShuffling)
             }
         }
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .principal) {
-                Text("Shuffle Cards")
-                    .font(.custom("Papyrus", size: 20))
-                    .foregroundColor(.white)
-            }
-        }
+        
         .onAppear {
             arrangeCards()
         }
@@ -113,11 +104,11 @@ struct DeckShuffleView: View {
         let bottomEndAngle:   Double = 360
         
         // 弧形圆心的 y 坐标
-        let topCenterY = screenH * 0.1
+        let topCenterY = screenH * 0.05
         let bottomCenterY = screenH * 0.9
         
         // 扇形半径
-        let radius: CGFloat = 150
+        let radius: CGFloat = 200
         
         // 线性插值计算角度
         func angleFor(index: Int, total: Int, start: Double, end: Double) -> Double {
