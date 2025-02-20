@@ -3,10 +3,20 @@ import SwiftUI
 struct DeckShuffleView: View {
     @Environment(\.dismiss) private var dismiss
     
-    let deck = Array(repeating: "card_back", count: 14) // 每个扇形6张牌
+    // 模拟 14 张卡，前 7 张在“上扇”，后 7 张在“下扇”
+    @State private var deck: [String] = Array(repeating: "card_back", count: 14)
+    
+    // 卡片位置信息
     @State private var cardPositions: [CardPosition]
+    
+    // 洗牌锁
     @State private var isShuffling = false
     
+    // 抽牌弹窗
+    @State private var revealedCards: [String] = []
+    @State private var showPopup = false
+    
+    // 卡片尺寸
     let cardSize = CGSize(width: 140, height: 210)
     
     init() {
@@ -26,6 +36,7 @@ struct DeckShuffleView: View {
     
     var body: some View {
         ZStack {
+            // 背景
             Color.black.ignoresSafeArea()
             
             // 卡片层
@@ -39,6 +50,8 @@ struct DeckShuffleView: View {
                         .rotationEffect(position.rotation)
                         .scaleEffect(position.scale)
                         .offset(position.offset)
+                        // 1) 添加阴影
+                        .shadow(color: .black.opacity(0.4), radius: 5, x: 2, y: 2)
                         .animation(.easeInOut(duration: 0.5), value: position)
                 }
             }
@@ -73,57 +86,52 @@ struct DeckShuffleView: View {
         .onAppear {
             arrangeCards()
         }
+        // 抽牌弹窗
+        .sheet(isPresented: $showPopup) {
+            RevealCardsPopupView(cards: revealedCards) {
+                showPopup = false
+            }
+        }
     }
     
+    // MARK: - 排布扇形
     private func arrangeCards() {
-    // For convenience:
         let screenW = UIScreen.main.bounds.width
         let screenH = UIScreen.main.bounds.height
-
-        // We have 12 cards total, 6 for the top arc and 6 for the bottom arc.
-        // We'll define angles so that the top forms a "U" and the bottom forms an "n".
         
-        // —— 1) Parameters you can tweak ——
-        // Arc range (in degrees) for top vs. bottom. Adjust to taste:
-        let topStartAngle: Double = 0
-        let topEndAngle:   Double = 180
-
-        let bottomStartAngle: Double = 180
-        let bottomEndAngle:   Double = 360
-
-        // How “wide” the arcs should be (0 = narrower, 180 = full semicircle, etc.).
-        // By default, for 6 cards we can just span the entire range from startAngle to endAngle.
         let topCount = 7
         let bottomCount = 7
-        // Where to place the center of each arc
+        
+        // 上扇从 0° 到 180°，下扇从 180° 到 360°
+        let topStartAngle: Double = 0
+        let topEndAngle:   Double = 180
+        
+        let bottomStartAngle: Double = 180
+        let bottomEndAngle:   Double = 360
+        
+        // 弧形圆心的 y 坐标
         let topCenterY = screenH * 0.1
         let bottomCenterY = screenH * 0.9
-        // Radius of the semicircle
+        
+        // 扇形半径
         let radius: CGFloat = 150
-
-        // —— 2) Compute angles for top and bottom arcs ——
-        // For the top 6 cards, we go from topStartAngle to topEndAngle in 5 steps (between 6 cards).
-        // For the bottom 6 cards, from bottomStartAngle to bottomEndAngle in 5 steps.
-
-        // Helper: linear interpolation in degrees
+        
+        // 线性插值计算角度
         func angleFor(index: Int, total: Int, start: Double, end: Double) -> Double {
-            // e.g. for i in [0..5], we want i in [0..5] steps from start->end
-            if total < 2 { return start } // fallback
+            if total < 2 { return start }
             let fraction = Double(index) / Double(total - 1)
             return start + (end - start) * fraction
         }
-
-        // —— 3) Assign positions to each card ——
+        
         for i in cardPositions.indices {
             let isTop = (i < topCount)
             let indexInArc = isTop ? i : i - topCount
-
-            // Decide which arc’s parameters to use
+            
             let (startDeg, endDeg, centerY) = isTop
                 ? (topStartAngle, topEndAngle, topCenterY)
                 : (bottomStartAngle, bottomEndAngle, bottomCenterY)
-
-            // Angle in degrees for this card
+            
+            // 计算该卡在弧形上的角度
             let degrees = angleFor(
                 index: indexInArc,
                 total: isTop ? topCount : bottomCount,
@@ -131,49 +139,47 @@ struct DeckShuffleView: View {
                 end: endDeg
             )
             let radians = degrees * .pi / 180
-
-            // The arc center is horizontally at mid-screen
+            
+            // 圆心在屏幕水平中点
             let centerX = screenW * 0.5
-
-            // Compute x/y by offsetting from the center
+            
+            // 计算卡片中心
             let x = centerX + cos(radians) * radius
             let y = centerY + sin(radians) * radius
-
-            // Store offset relative to screen center
+            
             cardPositions[i].offset = CGSize(
                 width: x - screenW/2,
                 height: y - screenH/2
             )
-
-            // Keep card vertical by rotating 90°, then add the arc’s own angle
-            // so that the card edges follow the arc.
+            
+            // 让卡片随弧形倾斜
             cardPositions[i].rotation = .degrees(90 + degrees)
             cardPositions[i].scale = 1.0
         }
     }
     
+    // MARK: - 洗牌逻辑
     private func performShuffle() {
         guard !isShuffling else { return }
         isShuffling = true
         
-        // 1. 收起成两叠
+        // 1. 收拢成两叠
         withAnimation(.easeInOut(duration: 0.5)) {
             for i in cardPositions.indices {
-                let isTop = i < 6
+                let isTop = i < 7
                 cardPositions[i].offset = CGSize(
                     width: 0,
                     height: isTop ? -100 : 100
                 )
-                // 修改这里 - 保持卡片竖直
-                cardPositions[i].rotation = .degrees(isTop ? 0 : 270)
+                // 让它们在收拢时竖直
+                cardPositions[i].rotation = .degrees(0)
                 cardPositions[i].scale = 0.8
             }
         }
         
-        // 2. 交换位置
+        // 2. 交换上下叠
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
             withAnimation(.easeInOut(duration: 0.5)) {
-                // 两叠牌交换位置
                 for i in cardPositions.indices {
                     cardPositions[i].isTop.toggle()
                     cardPositions[i].offset = CGSize(
@@ -183,7 +189,7 @@ struct DeckShuffleView: View {
                 }
             }
             
-            // 3. 展开成扇形
+            // 3. 展开回扇形
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
                 withAnimation(.easeInOut(duration: 0.5)) {
                     arrangeCards()
@@ -191,13 +197,24 @@ struct DeckShuffleView: View {
                         cardPositions[i].scale = 1.0
                     }
                 }
-                isShuffling = false
+                // 这里动画还需要 0.5 秒才结束
+                // 让我们等动画结束后，再额外等 1 秒再弹窗
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    // 再等 1 秒
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        isShuffling = false
+                        // 抽 3 张牌，弹窗
+                        let randomDeck = deck.shuffled()
+                        revealedCards = Array(randomDeck.prefix(3))
+                        showPopup = true
+                    }
+                }
             }
         }
     }
 }
 
-// 用于追踪每张卡片状态的结构体
+// MARK: - 卡片位置信息
 struct CardPosition: Equatable {
     var index: Int
     var isTop: Bool
@@ -211,5 +228,81 @@ struct CardPosition: Equatable {
         lhs.offset == rhs.offset &&
         lhs.rotation == rhs.rotation &&
         lhs.scale == rhs.scale
+    }
+}
+
+// MARK: - 弹窗视图
+struct RevealCardsPopupView: View {
+    let cards: [String]
+    let onClose: () -> Void
+    
+    var body: some View {
+        VStack(spacing: 20) {
+            Text("Your Reading")
+                .font(.custom("Papyrus", size: 24))
+                .foregroundColor(.white)
+                .padding()
+            
+            HStack(spacing: 20) {
+                CardView(title: "Past", image: cards[safe: 0] ?? "card_back")
+                CardView(title: "Present", image: cards[safe: 1] ?? "card_back")
+                CardView(title: "Future", image: cards[safe: 2] ?? "card_back")
+            }
+            
+            Text("These are placeholder explanations.\nThe final version will have real interpretations.")
+                .font(.system(size: 14))
+                .foregroundColor(.white.opacity(0.7))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 20)
+            
+            Button(action: {
+                onClose()
+            }) {
+                Text("Close")
+                    .font(.system(size: 18))
+                    .foregroundColor(.white)
+                    .padding()
+                    .background(Color.customGold)
+                    .cornerRadius(10)
+            }
+        }
+        .padding()
+        .background(Color.black.opacity(0.8))
+        .cornerRadius(20)
+        .padding()
+    }
+}
+
+// MARK: - 小卡片展示
+struct CardView: View {
+    let title: String
+    let image: String
+    
+    var body: some View {
+        VStack {
+            Text(title)
+                .font(.custom("Papyrus", size: 18))
+                .foregroundColor(.white)
+            
+            Image(image)
+                .resizable()
+                .frame(width: 100, height: 150)
+                .cornerRadius(10)
+        }
+    }
+}
+
+// MARK: - Array 安全下标
+extension Array {
+    subscript(safe index: Int) -> Element? {
+        indices.contains(index) ? self[index] : nil
+    }
+}
+
+
+// MARK: - 预览
+#Preview {
+    NavigationStack {
+        DeckShuffleView()
     }
 }

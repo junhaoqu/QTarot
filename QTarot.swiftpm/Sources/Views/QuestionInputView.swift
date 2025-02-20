@@ -34,7 +34,7 @@ struct QuestionInputView: View {
                                 .shadow(color: Color.customGold.opacity(0.9), radius: 15)
                                 .blur(radius: 3)
                                 .animation(
-                                    .easeInOut(duration: 4.0)
+                                    .easeInOut(duration: 3.0)
                                     .repeatForever(autoreverses: true)
                                     .delay(Double(i) * 0.3),
                                     value: animate

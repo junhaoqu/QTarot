@@ -67,7 +67,10 @@ struct QuestionFormView: View {
             }
         }
         .navigationBarTitleDisplayMode(.inline)
-       
+        .onDisappear {
+            // 当视图消失时清空问题
+            question = ""
+        }
     }
 }
 
