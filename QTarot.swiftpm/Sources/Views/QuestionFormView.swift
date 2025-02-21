@@ -94,6 +94,19 @@ struct QuestionFormView: View {
             }
         }
         .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button {
+                    dismiss()
+                } label: {
+                    Image(systemName: "chevron.left")
+                        .foregroundColor(.white)
+                    Text("Back")
+                        .foregroundColor(.white)
+                }
+            }
+        }
         .onDisappear {
             // 当视图消失时清空问题
             question = ""

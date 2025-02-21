@@ -1,10 +1,28 @@
 import SwiftUI
 
+// MARK: - 卡片位置信息
+struct CardPosition: Equatable {
+    var index: Int
+    var isTop: Bool
+    var offset: CGSize
+    var rotation: Angle
+    var scale: CGFloat
+    
+    static func == (lhs: CardPosition, rhs: CardPosition) -> Bool {
+        lhs.index == rhs.index &&
+        lhs.isTop == rhs.isTop &&
+        lhs.offset == rhs.offset &&
+        lhs.rotation == rhs.rotation &&
+        lhs.scale == rhs.scale
+    }
+}
+
+// MARK: - 主视图
 struct DeckShuffleView: View {
     @Environment(\.dismiss) private var dismiss
     
-    // 模拟 14 张卡，前 7 张在"上扇"，后 7 张在"下扇"
-    @State private var deck: [String] = Array(repeating: "card_back", count: 14)
+    // 模拟 14 张卡，前 7 张在 "上扇"，后 7 张在 "下扇"
+    @State private var deck: [TarotCard] = []
     
     // 卡片位置信息
     @State private var cardPositions: [CardPosition]
@@ -12,14 +30,17 @@ struct DeckShuffleView: View {
     // 洗牌锁
     @State private var isShuffling = false
     
-    // 抽牌弹窗
-    @State private var revealedCards: [String] = []
-    @State private var showPopup = false
+    // 洗牌后抽出的 3 张牌
+    @State private var revealedCards: [TarotCard] = []
+    
+    // 添加 navigation state
+    @State private var navigateToReading = false
     
     // 卡片尺寸
     let cardSize = CGSize(width: 200, height: 300)
     
     init() {
+        // 初始化卡片位置
         var positions: [CardPosition] = []
         for i in 0..<14 {
             let isTop = i < 7
@@ -60,7 +81,7 @@ struct DeckShuffleView: View {
                     }
                 }
                 
-                // Shuffle 按钮 - 放在中间
+                // Shuffle 按钮
                 Button {
                     performShuffle()
                 } label: {
@@ -76,16 +97,33 @@ struct DeckShuffleView: View {
             }
         }
         .navigationBarTitleDisplayMode(.inline)
-        
-        .onAppear {
-            arrangeCards()
-        }
-        // 抽牌弹窗
-        .sheet(isPresented: $showPopup) {
-            RevealCardsPopupView(cards: revealedCards) {
-                showPopup = false
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button {
+                    dismiss()
+                } label: {
+                    Image(systemName: "chevron.left")
+                        .foregroundColor(.white)
+                    Text("Back")
+                        .foregroundColor(.white)
+                }
             }
         }
+        .onAppear {
+            loadDeck()
+            arrangeCards()
+        }
+        // 替换 sheet 为 navigation link
+        .navigationDestination(isPresented: $navigateToReading) {
+            ThreeCardReadingView(cards: revealedCards)
+        }
+    }
+    
+    // MARK: - 加载真实塔罗牌
+    private func loadDeck() {
+        let fullDeck = TarotDeck.shared.cards
+        deck = Array(fullDeck.shuffled().prefix(14))
     }
     
     // MARK: - 排布扇形
@@ -98,10 +136,10 @@ struct DeckShuffleView: View {
         
         // 上扇从 0° 到 180°，下扇从 180° 到 360°
         let topStartAngle: Double = 0
-        let topEndAngle:   Double = 180
+        let topEndAngle: Double = 180
         
         let bottomStartAngle: Double = 180
-        let bottomEndAngle:   Double = 360
+        let bottomEndAngle: Double = 360
         
         // 弧形圆心的 y 坐标
         let topCenterY = screenH * 0.05
@@ -165,7 +203,6 @@ struct DeckShuffleView: View {
                     width: 0,
                     height: isTop ? -100 : 100
                 )
-                // 让它们在收拢时竖直
                 cardPositions[i].rotation = .degrees(0)
                 cardPositions[i].scale = 0.8
             }
@@ -191,97 +228,13 @@ struct DeckShuffleView: View {
                         cardPositions[i].scale = 1.0
                     }
                 }
-                // 这里动画还需要 0.5 秒才结束
-                // 让我们等动画结束后，再额外等 1 秒再弹窗
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    // 再等 1 秒
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        isShuffling = false
-                        // 抽 3 张牌，弹窗
-                        let randomDeck = deck.shuffled()
-                        revealedCards = Array(randomDeck.prefix(3))
-                        showPopup = true
-                    }
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                    isShuffling = false
+                    revealedCards = Array(deck.shuffled().prefix(3))
+                    navigateToReading = true
                 }
             }
-        }
-    }
-}
-
-// MARK: - 卡片位置信息
-struct CardPosition: Equatable {
-    var index: Int
-    var isTop: Bool
-    var offset: CGSize
-    var rotation: Angle
-    var scale: CGFloat
-    
-    static func == (lhs: CardPosition, rhs: CardPosition) -> Bool {
-        lhs.index == rhs.index &&
-        lhs.isTop == rhs.isTop &&
-        lhs.offset == rhs.offset &&
-        lhs.rotation == rhs.rotation &&
-        lhs.scale == rhs.scale
-    }
-}
-
-// MARK: - 弹窗视图
-struct RevealCardsPopupView: View {
-    let cards: [String]
-    let onClose: () -> Void
-    
-    var body: some View {
-        VStack(spacing: 20) {
-            Text("Your Reading")
-                .font(.custom("Papyrus", size: 24))
-                .foregroundColor(.white)
-                .padding()
-            
-            HStack(spacing: 20) {
-                CardView(title: "Past", image: cards[safe: 0] ?? "card_back")
-                CardView(title: "Present", image: cards[safe: 1] ?? "card_back")
-                CardView(title: "Future", image: cards[safe: 2] ?? "card_back")
-            }
-            
-            Text("These are placeholder explanations.\nThe final version will have real interpretations.")
-                .font(.system(size: 14))
-                .foregroundColor(.white.opacity(0.7))
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 20)
-            
-            Button(action: {
-                onClose()
-            }) {
-                Text("Close")
-                    .font(.system(size: 18))
-                    .foregroundColor(.white)
-                    .padding()
-                    .background(Color.customGold)
-                    .cornerRadius(10)
-            }
-        }
-        .padding()
-        .background(Color.black.opacity(0.8))
-        .cornerRadius(20)
-        .padding()
-    }
-}
-
-// MARK: - 小卡片展示
-struct CardView: View {
-    let title: String
-    let image: String
-    
-    var body: some View {
-        VStack {
-            Text(title)
-                .font(.custom("Papyrus", size: 18))
-                .foregroundColor(.white)
-            
-            Image(image)
-                .resizable()
-                .frame(width: 100, height: 150)
-                .cornerRadius(10)
         }
     }
 }
@@ -290,13 +243,5 @@ struct CardView: View {
 extension Array {
     subscript(safe index: Int) -> Element? {
         indices.contains(index) ? self[index] : nil
-    }
-}
-
-
-// MARK: - 预览
-#Preview {
-    NavigationStack {
-        DeckShuffleView()
     }
 }

@@ -166,10 +166,19 @@ struct TarotCardGridView: View {
             .sheet(isPresented: $showingReading) {
                 if let card = selectedCard {
                     NavigationView {
-                        ReadingView(card: card, mode: mode)
-                            .navigationBarItems(trailing: Button("Close") {
-                                showingReading = false
-                            })
+                        VStack(spacing: 0) {
+                            // 自定义下拉指示器
+                            RoundedRectangle(cornerRadius: 2.5)
+                                .fill(Color.gray.opacity(0.3))
+                                .frame(width: 36, height: 5)
+                                .padding(.top, 8)
+                                .padding(.bottom, 8)
+                            
+                            ReadingView(card: card, mode: mode)
+                                .navigationBarItems(trailing: Button("Close") {
+                                    showingReading = false
+                                })
+                        }
                     }
                     .presentationDetents([.large])
                 }
