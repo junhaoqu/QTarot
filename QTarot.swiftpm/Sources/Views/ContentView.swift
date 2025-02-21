@@ -7,51 +7,69 @@ struct ContentView: View {
     
     var body: some View {
         NavigationStack {
-            VStack(spacing: 30) {
-                Text("QTarot")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
+            ZStack {
+                Image("card_back")
+                    .resizable()
+                    .scaledToFill()
+                    .edgesIgnoringSafeArea(.all)
+                    .overlay(Color.black.opacity(0.6))
                 
-                VStack(spacing: 25) {
-                    // 问题输入按钮
-                    Button {
-                        showingQuestionInput = true
-                    } label: {
-                        Image("question_bg")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(height: 100)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 15)
-                                    .stroke(Color.gold, lineWidth: 1)
-                            )
-                            .shadow(color: .black.opacity(0.3), radius: 10)
-                    }
-                    .sheet(isPresented: $showingQuestionInput) {
-                        QuestionInputView(question: $question)
-                            .presentationDetents([.medium])
-                    }
+                VStack {
+                    Spacer()
                     
-                    // Start with a Card 按钮
-                    NavigationLink {
-                        TarotCardGridView(mode: .randomReading)
-                    } label: {
-                        MenuButton(title: "Start with a Card", 
-                                 subtitle: "Pick a card for general guidance",
-                                 systemImage: "questionmark.app.fill")
-                    }
+                    Text("QTarot")
+                        .font(.custom("Papyrus", size: 100))
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                        .shadow(color: .gold.opacity(0.4), radius: 10, x: 0, y: 0)
                     
-                    // Ask a Question 按钮 - 使用 NavigationLink 而不是 sheet
-                    NavigationLink {
-                        QuestionInputView(question: $question)
-                            .navigationBarBackButtonHidden(true)
-                    } label: {
-                        MenuButton(title: "Ask a Question", 
-                                 subtitle: "Get guidance for your specific question",
-                                 systemImage: "questionmark.circle")
+                    Spacer()
+                    
+                    HStack(spacing: 100) {
+                        // Start with a Card 按钮
+                        NavigationLink {
+                            TarotCardGridView(mode: .randomReading)
+                        } label: {
+                            VStack(spacing: -40) {
+                                Text("Pick a Card")
+                                    .foregroundColor(.white)
+                                    .font(.custom("Papyrus", size: 40))
+                                    .frame(height: 60)
+                                    .shadow(color: .gold.opacity(0.8), radius: 8, x: 0, y: 0)
+                                
+                                Image("sun_button")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 400, height: 400)
+                                    .shadow(color: .gold.opacity(0.5), radius: 10)
+                            }
+                            .offset(x: -20)
+                        }
+                        
+                        // Ask a Question 按钮
+                        NavigationLink {
+                            QuestionInputView(question: $question)
+                                .navigationBarBackButtonHidden(true)
+                        } label: {
+                            VStack(spacing: -40) {
+                                Text("Ask a Question")
+                                    .foregroundColor(.white)
+                                    .font(.custom("Papyrus", size: 40))
+                                    .frame(height: 60)
+                                    .offset(x: -20)
+                                    .shadow(color: .gold.opacity(0.8), radius: 8, x: 0, y: 0)
+                                
+                                Image("moon_button")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 400, height: 400)
+                                    .shadow(color: .gold.opacity(0.5), radius: 10)
+                            }
+                            .offset(x: 20)
+                        }
                     }
+                    .padding(.bottom, 100)
                 }
-                .padding()
             }
             .background(Color(.systemBackground))
             .navigationBarHidden(true)

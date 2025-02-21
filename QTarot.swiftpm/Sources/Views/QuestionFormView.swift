@@ -22,7 +22,7 @@ struct QuestionFormView: View {
                     VStack(spacing: 40) {
 
                         Text("Hint")
-                        .font(.custom("Papyrus", size: 40))
+                        .font(.custom("Papyrus", size: 45))
                         .fontWeight(.heavy)  // 使用最粗的字重
                         .foregroundColor(.white)
                         .shadow(color: .black.opacity(0.7), radius: 3, x: 0, y: 2)  // 增强阴影
@@ -32,7 +32,9 @@ struct QuestionFormView: View {
                                 .fontWeight(.heavy)
                                 .foregroundColor(.black.opacity(0.3))
                                 .offset(x: 1, y: 1)
+                                
                         )
+                        .shadow(color: .gold.opacity(0.8), radius: 20, x: 0, y: 0)
                         
                         // 1) Prompt text
                         Text("The cards respond to your energy, so stay focused and relaxed. A cluttered mind can lead to unclear readings. Take a deep breath, set your intention, and keep your thoughts centered.")

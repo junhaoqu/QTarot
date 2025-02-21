@@ -74,6 +74,7 @@ struct TarotCardGridView: View {
                                 .foregroundColor(.black.opacity(0.3))
                                 .offset(x: 1, y: 1)
                         )
+                        .shadow(color: .gold.opacity(0.8), radius: 10, x: 0, y: 0)
                     
                     Text("Move Left or Right to Shuffle")
                         .font(.custom("Papyrus", size: 20))
@@ -81,6 +82,7 @@ struct TarotCardGridView: View {
                         .foregroundColor(Color.customGold)
                         .opacity(0.8)
                         .shadow(color: .black.opacity(0.5), radius: 2)
+                        .shadow(color: .gold.opacity(0.8), radius: 10, x: 0, y: 0)
                     
                     Spacer()
                 }
