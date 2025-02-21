@@ -17,9 +17,10 @@ struct CardPosition: Equatable {
     }
 }
 
-// MARK: - 主视图
 struct DeckShuffleView: View {
     @Environment(\.dismiss) private var dismiss
+    
+    let mode: ReadingMode
     
     // 模拟 14 张卡，前 7 张在 "上扇"，后 7 张在 "下扇"
     @State private var deck: [TarotCard] = []
@@ -33,13 +34,14 @@ struct DeckShuffleView: View {
     // 洗牌后抽出的 3 张牌
     @State private var revealedCards: [TarotCard] = []
     
-    // 添加 navigation state
-    @State private var navigateToReading = false
-    
     // 卡片尺寸
     let cardSize = CGSize(width: 200, height: 300)
     
-    init() {
+    // Add this state variable near the top with other @State properties
+    @State private var shouldShowReading = false
+    
+    init(mode: ReadingMode) {
+        self.mode = mode
         // 初始化卡片位置
         var positions: [CardPosition] = []
         for i in 0..<14 {
@@ -114,10 +116,13 @@ struct DeckShuffleView: View {
             loadDeck()
             arrangeCards()
         }
-        // 替换 sheet 为 navigation link
-        .navigationDestination(isPresented: $navigateToReading) {
-            ThreeCardReadingView(cards: revealedCards)
-        }
+        // Replace the navigationDestination with a navigation link
+        .background(
+            NavigationLink(
+                destination: ThreeCardReadingView(cards: revealedCards, mode: mode),
+                isActive: $shouldShowReading
+            ) { EmptyView() }
+        )
     }
     
     // MARK: - 加载真实塔罗牌
@@ -232,7 +237,7 @@ struct DeckShuffleView: View {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                     isShuffling = false
                     revealedCards = Array(deck.shuffled().prefix(3))
-                    navigateToReading = true
+                    shouldShowReading = true
                 }
             }
         }

@@ -70,7 +70,7 @@ struct QuestionFormView: View {
                         
                         // 3) "Shuffle Cards" button
                         NavigationLink {
-                            DeckShuffleView()
+                            DeckShuffleView(mode: .questionReading(question))
                         } label: {
                             Text("Shuffle Cards")
                                 .font(.custom("Papyrus", size: 20))

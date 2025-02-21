@@ -2,12 +2,18 @@ import SwiftUI
 
 struct ThreeCardReadingView: View {
     @Environment(\.dismiss) private var dismiss
+    
     let cards: [TarotCard]
+    let mode: ReadingMode
+    
+    @State private var aiReading: String = ""
+    @State private var isLoading = false
+    @State private var error: String?
     
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                // 添加背景
+                // 背景
                 Image("table")
                     .resizable()
                     .scaledToFill()
@@ -17,15 +23,15 @@ struct ThreeCardReadingView: View {
                 ScrollView {
                     VStack(spacing: 30) {
                         Text("Your Reading")
-                            .font(.custom("Papyrus", size: 40))
+                            .font(.largeTitle)
                             .foregroundColor(.white)
                             .padding(.top, 40)
                         
-                        // 时间轴标题
+                        // 时间轴标题 (Past, Present, Future)
                         HStack(spacing: 30) {
                             ForEach(["Past", "Present", "Future"], id: \.self) { title in
                                 Text(title)
-                                    .font(.custom("Papyrus", size: 24))
+                                    .font(.title2)
                                     .foregroundColor(.customGold)
                                     .frame(maxWidth: .infinity)
                             }
@@ -44,7 +50,7 @@ struct ThreeCardReadingView: View {
                                         .shadow(color: .black.opacity(0.5), radius: 10)
                                     
                                     Text(card.name)
-                                        .font(.custom("Papyrus", size: 22))
+                                        .font(.title3)
                                         .foregroundColor(.white)
                                         .multilineTextAlignment(.center)
                                     
@@ -58,6 +64,36 @@ struct ThreeCardReadingView: View {
                             }
                         }
                         .padding(.horizontal, 20)
+                        
+                        // AI Interpretation area — only if user actually asked a question
+                        if mode.question != nil {
+                            VStack(alignment: .leading, spacing: 20) {
+                                Text("AI Interpretation")
+                                    .font(.title2)
+                                    .foregroundColor(.customGold)
+                                
+                                if isLoading {
+                                    ProgressView()
+                                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                } else if let error = error {
+                                    Text(error)
+                                        .foregroundColor(.red)
+                                } else if !aiReading.isEmpty {
+                                    // Show the final AI reading text
+                                    Text(aiReading)
+                                        .font(.body)
+                                        .foregroundColor(.white)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                } else {
+                                    Text("Generating your AI reading...")
+                                        .foregroundColor(.white.opacity(0.7))
+                                }
+                            }
+                            .padding()
+                            .background(Color.black.opacity(0.3))
+                            .cornerRadius(15)
+                            .padding(.horizontal, 20)
+                        }
                         
                         Spacer(minLength: 40)
                     }
@@ -78,5 +114,29 @@ struct ThreeCardReadingView: View {
                 }
             }
         }
+        // When the view appears, generate AI reading if there's a question
+        .task {
+            if mode.question != nil {
+                await generateAIReading(question: mode.question!, cards: cards)
+            }
+        }
     }
-} 
+    
+    // MARK: - AI Reading Logic
+    private func generateAIReading(question: String, cards: [TarotCard]) async {
+        isLoading = true
+        error = nil
+        
+        do {
+            // Call the OpenAI service to generate the reading
+            aiReading = try await OpenAIService.shared.generateTarotReading(
+                cards: cards,
+                question: question
+            )
+        } catch {
+            self.error = "Failed to generate AI reading: \(error.localizedDescription)"
+        }
+        
+        isLoading = false
+    }
+}

@@ -52,3 +52,6 @@ Icon
 
 # Swift Package Manager
 Package.resolved 
+
+# OpenAI API Key
+QTarot.swiftpm/Sources/Services/OpenAIService.swift

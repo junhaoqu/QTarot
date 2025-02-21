@@ -38,7 +38,6 @@ struct TarotCardGridView: View {
         GeometryReader { geometry in
             let screenWidth  = geometry.size.width
             let screenHeight = geometry.size.height
-            let safeAreaInsets = geometry.safeAreaInsets
             
             // 卡片大小可自行调整
             let cardWidth:  CGFloat = screenWidth * 0.65
@@ -246,10 +245,11 @@ class ImagePreloader: ObservableObject {
             if !loadedImages.contains(card.imageName) {
                 loadedImages.insert(card.imageName)
                 DispatchQueue.global(qos: .utility).async { [weak self] in
+                    guard let self = self else { return }
                     if let url = URL(string: card.imageName),
                        let data = try? Data(contentsOf: url),
                        let image = UIImage(data: data) {
-                        self?.imageCache.setObject(image, forKey: card.imageName as NSString)
+                        self.imageCache.setObject(image, forKey: card.imageName as NSString)
                     }
                 }
             }
