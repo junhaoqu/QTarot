@@ -15,6 +15,20 @@ struct ContentView: View {
                     .overlay(Color.black.opacity(0.6))
                 
                 VStack {
+                    HStack {
+                        Spacer()
+                        NavigationLink {
+                            DictView()
+                        } label: {
+                            Image("book")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 200, height: 200)
+                                .padding()
+                                .shadow(color: .gold.opacity(0.5), radius: 10)
+                        }
+                    }
+                    
                     Spacer()
                     
                     Text("QTarot")
@@ -89,7 +103,7 @@ struct MenuButton: View {
                 .frame(width: 50)
             
             VStack(alignment: .leading) {
-                Text(title)
+                Text(title) 
                     .font(.headline)
                 Text(subtitle)
                     .font(.subheadline)

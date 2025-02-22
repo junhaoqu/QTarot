@@ -1,0 +1,13 @@
+{
+  "images": [
+    {
+      "idiom": "universal",
+      "filename": "hermit_reversed.jpg",
+      "scale": "1x"
+    }
+  ],
+  "info": {
+    "version": 1,
+    "author": "xcode"
+  }
+}

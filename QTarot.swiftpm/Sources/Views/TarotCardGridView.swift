@@ -200,13 +200,13 @@ struct TarotCardGridView: View {
         let floatDistance = baseY - targetY
         
         // 1) 上浮 + 放大
-        withAnimation(.easeOut(duration: 0.5)) {
+        withAnimation(.easeOut(duration: 0.4)) {
             selectedCardOffset = -floatDistance
             selectedCardScale = 1.2  // 稍微放大一点
         }
         
         // 2) Y 轴翻转 360°
-        withAnimation(.easeInOut(duration: 0.6).delay(0.3)) {
+        withAnimation(.easeInOut(duration: 0.6).delay(0.6)) {
             selectedCardRotation = 360
             selectedCardScale = 1.3  // 翻转时再放大一点
         }
@@ -220,6 +220,8 @@ struct TarotCardGridView: View {
             selectedCardRotation = 0
             selectedCardScale = 1
         }
+
+       
     }
     
     // MARK: - 查找卡片的 index
