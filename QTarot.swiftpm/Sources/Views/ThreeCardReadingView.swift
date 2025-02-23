@@ -5,6 +5,7 @@ struct ThreeCardReadingView: View {
     
     let cards: [TarotCard]
     let mode: ReadingMode
+    var question: String
     
     @State private var aiReading: String = ""
     @State private var isLoading = false
@@ -22,10 +23,16 @@ struct ThreeCardReadingView: View {
                 
                 ScrollView {
                     VStack(spacing: 30) {
-                        Text("Your Reading")
-                            .font(.largeTitle)
+                        Text("Your Question: \(question)")
+                            .font(.custom("Papyrus", size: 20))
+                            .fontWeight(.heavy)  // 使用最粗的字重
                             .foregroundColor(.white)
                             .padding(.top, 40)
+                        
+                        Text("Your Reading")
+                            .font(.custom("Papyrus", size: 20))
+                            .foregroundColor(.white)
+                            .padding(.top, 20)
                         
                         // 时间轴标题 (Past, Present, Future)
                         HStack(spacing: 30) {
@@ -81,7 +88,7 @@ struct ThreeCardReadingView: View {
                                 } else if !aiReading.isEmpty {
                                     // Show the final AI reading text
                                     Text(aiReading)
-                                        .font(.body)
+                                        .font(.system(size: 20))
                                         .foregroundColor(.white)
                                         .fixedSize(horizontal: false, vertical: true)
                                 } else {
@@ -117,7 +124,7 @@ struct ThreeCardReadingView: View {
         // When the view appears, generate AI reading if there's a question
         .task {
             if mode.question != nil {
-                await generateAIReading(question: mode.question!, cards: cards)
+                await generateAIReading(question: question, cards: cards)
             }
         }
     }

@@ -21,6 +21,7 @@ struct DeckShuffleView: View {
     @Environment(\.dismiss) private var dismiss
     
     let mode: ReadingMode
+    @Binding var question: String
     
     // 模拟 14 张卡，前 7 张在 "上扇"，后 7 张在 "下扇"
     @State private var deck: [TarotCard] = []
@@ -40,8 +41,10 @@ struct DeckShuffleView: View {
     // Add this state variable near the top with other @State properties
     @State private var shouldShowReading = false
     
-    init(mode: ReadingMode) {
+    init(mode: ReadingMode, question: Binding<String>) {
+        print("DeckShuffleView initialized with question: \(question.wrappedValue)")
         self.mode = mode
+        _question = question
         // 初始化卡片位置
         var positions: [CardPosition] = []
         for i in 0..<14 {
@@ -119,7 +122,7 @@ struct DeckShuffleView: View {
         // Replace the navigationDestination with a navigation link
         .background(
             NavigationLink(
-                destination: ThreeCardReadingView(cards: revealedCards, mode: mode),
+                destination: ThreeCardReadingView(cards: revealedCards, mode: mode, question: question),
                 isActive: $shouldShowReading
             ) { EmptyView() }
         )

@@ -64,6 +64,20 @@ struct QuestionFormView: View {
                                     RoundedRectangle(cornerRadius: 15)
                                         .stroke(Color.customGold.opacity(0.7), lineWidth: 2)
                                 )
+                                .contextMenu {
+                                    Button(action: {
+                                        UIPasteboard.general.string = question
+                                    }) {
+                                        Text("Copy")
+                                    }
+                                    Button(action: {
+                                        if let pastedText = UIPasteboard.general.string {
+                                            question = pastedText
+                                        }
+                                    }) {
+                                        Text("Paste")
+                                    }
+                                }
                                 
                         }
                         .disableAutocorrection(true)
@@ -72,7 +86,10 @@ struct QuestionFormView: View {
                         
                         // 3) "Shuffle Cards" button
                         NavigationLink {
-                            DeckShuffleView(mode: .questionReading(question))
+                            DeckShuffleView(
+                                mode: .questionReading(question),
+                                question: $question
+                            )
                         } label: {
                             Text("Shuffle Cards")
                                 .font(.custom("Papyrus", size: 20))
@@ -110,8 +127,8 @@ struct QuestionFormView: View {
             }
         }
         .onDisappear {
-            // 当视图消失时清空问题
-            question = ""
+            // 移除这个清空逻辑
+            // question = ""
         }
     }
 }

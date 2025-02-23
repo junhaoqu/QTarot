@@ -15,31 +15,28 @@ struct ContentView: View {
                     .overlay(Color.black.opacity(0.6))
                 
                 VStack {
-                    GeometryReader { geometry in
-                        HStack {
-                            Spacer()
-                            NavigationLink {
-                                DictView()
-                            } label: {
-                                VStack(spacing: -40) {
-                                    Image("book")
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: 200, height: 200)
-                                        .padding()
-                                        .shadow(color: .gold.opacity(0.5), radius: 10)
-                                    
-                                    Text("Dictionary")
-                                        .foregroundColor(.white)
-                                        .font(.custom("Papyrus", size: 24))
-                                        .shadow(color: .gold.opacity(0.4), radius: 5, x: 0, y: 0)
-                                }
-                                .offset(y: 80)
+                    HStack {
+                        Spacer()
+                        NavigationLink {
+                            DictView()
+                        } label: {
+                            VStack(spacing: -40) {
+                                Image("book")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 200, height: 200)
+                                    .padding()
+                                    .shadow(color: .gold.opacity(0.5), radius: 10)
+                                
+                                Text("Dictionary")
+                                    .foregroundColor(.white)
+                                    .font(.custom("Papyrus", size: 24))
+                                    .shadow(color: .gold.opacity(0.4), radius: 5, x: 0, y: 0)
                             }
-                            .position(x: geometry.size.width - 150, y: 100)
+                            .offset(y: 100)
                         }
                     }
-                    
+
                     Spacer()
                     
                     Text("QTarot")
@@ -47,6 +44,13 @@ struct ContentView: View {
                         .fontWeight(.bold)
                         .foregroundColor(.white)
                         .shadow(color: .gold.opacity(0.4), radius: 10, x: 0, y: 0)
+                    
+                    Text("Tarot cards are merely tools for inspiration and guidance, offering perspectives and life advice. However, they cannot replace your own judgment and decisions. When facing important choices or significant issues, please consider your personal circumstances and seek professional advice to ensure sound decision-making.")
+                        .font(.system(size: 20))
+                        .foregroundColor(.white.opacity(0.8))
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 40)
+                        .padding(.top, 10)
                     
                     Spacer()
                     
