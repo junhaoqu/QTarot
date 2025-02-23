@@ -17,7 +17,7 @@ struct ReadingView: View {
                         .aspectRatio(contentMode: .fit)
                 } placeholder: {
                     // Fallback (e.g., card back)
-                    Image("card_back")
+                    Image(card.imageName)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                 }
@@ -43,7 +43,7 @@ struct ReadingView: View {
                         
                         // Daily life advice (empty for reversed cards)
                         if !card.dailyLife.isEmpty {
-                            Text("Daily Life:")
+                            Text("Today's Fortune:")
                                 .font(.headline)
                             Text(card.dailyLife)
                                 .font(.body)
@@ -61,7 +61,7 @@ struct ReadingView: View {
                         
                         // Job/Financial/Professional advice (empty for reversed cards)
                         if !card.job.isEmpty {
-                            Text("Job/Financial/Professional Life:")
+                            Text("Work:")
                                 .font(.headline)
                             Text(card.job)
                                 .font(.body)

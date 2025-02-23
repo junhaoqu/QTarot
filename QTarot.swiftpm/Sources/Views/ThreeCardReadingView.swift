@@ -42,7 +42,7 @@ struct ThreeCardReadingView: View {
                         HStack(alignment: .top, spacing: 20) {
                             ForEach(Array(zip(cards.indices, cards)), id: \.0) { index, card in
                                 VStack(spacing: 15) {
-                                    Image("card_back")
+                                    Image(card.imageName)
                                         .resizable()
                                         .aspectRatio(2/3, contentMode: .fit)
                                         .frame(maxWidth: geometry.size.width * 0.25)

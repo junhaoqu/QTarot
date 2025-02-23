@@ -20,12 +20,19 @@ struct ContentView: View {
                         NavigationLink {
                             DictView()
                         } label: {
-                            Image("book")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 200, height: 200)
-                                .padding()
-                                .shadow(color: .gold.opacity(0.5), radius: 10)
+                            VStack(spacing: -40) {
+                                Image("book")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 200, height: 200)
+                                    .padding()
+                                    .shadow(color: .gold.opacity(0.5), radius: 10)
+                                
+                                Text("Dictionary")
+                                    .foregroundColor(.white)
+                                    .font(.custom("Papyrus", size: 24))
+                                    .shadow(color: .gold.opacity(0.4), radius: 5, x: 0, y: 0)
+                            }
                         }
                     }
                     

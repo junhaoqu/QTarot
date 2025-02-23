@@ -20,6 +20,17 @@ struct DictView: View {
             .padding()
         }
         .navigationTitle("Tarot Dictionary")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                Text("Tarot Dictionary")
+                    .foregroundColor(.white)
+                    .font(.headline)
+            }
+        }
+        .toolbarColorScheme(.dark, for: .navigationBar)
+        .toolbarBackground(.black, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
         .sheet(isPresented: $showingCardDetail) {
             if let card = selectedCard {
                 CardDetailView(card: card)
@@ -63,9 +74,43 @@ struct CardDetailView: View {
                         .frame(height: 300)
                         .shadow(radius: 10)
                     
-                    CardMeaningView(card: card)
+                    VStack(alignment: .leading, spacing: 15) {
+                        Text(card.name)
+                            .font(.title)
+                            .fontWeight(.bold)
+                        
+                        if !card.meaning.isEmpty {
+                            Text("Meaning:")
+                                .font(.headline)
+                            Text(card.meaning)
+                        }
+                        
+                        if !card.dailyLife.isEmpty {
+                            Text("Today's Fortune:")
+                                .font(.headline)
+                            Text(card.dailyLife)
+                        }
+                        
+                        if !card.relationship.isEmpty {
+                            Text("Relationship:")
+                                .font(.headline)
+                            Text(card.relationship)
+                        }
+                        
+                        if !card.job.isEmpty {
+                            Text("Work:")
+                                .font(.headline)
+                            Text(card.job)
+                        }
+                        
+                        if !card.reversedMeaning.isEmpty {
+                            Text("Reversed Meaning:")
+                                .font(.headline)
+                            Text(card.reversedMeaning)
+                        }
+                    }
+                    .padding()
                 }
-                .padding()
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
