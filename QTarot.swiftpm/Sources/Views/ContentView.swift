@@ -15,24 +15,28 @@ struct ContentView: View {
                     .overlay(Color.black.opacity(0.6))
                 
                 VStack {
-                    HStack {
-                        Spacer()
-                        NavigationLink {
-                            DictView()
-                        } label: {
-                            VStack(spacing: -40) {
-                                Image("book")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 200, height: 200)
-                                    .padding()
-                                    .shadow(color: .gold.opacity(0.5), radius: 10)
-                                
-                                Text("Dictionary")
-                                    .foregroundColor(.white)
-                                    .font(.custom("Papyrus", size: 24))
-                                    .shadow(color: .gold.opacity(0.4), radius: 5, x: 0, y: 0)
+                    GeometryReader { geometry in
+                        HStack {
+                            Spacer()
+                            NavigationLink {
+                                DictView()
+                            } label: {
+                                VStack(spacing: -40) {
+                                    Image("book")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 200, height: 200)
+                                        .padding()
+                                        .shadow(color: .gold.opacity(0.5), radius: 10)
+                                    
+                                    Text("Dictionary")
+                                        .foregroundColor(.white)
+                                        .font(.custom("Papyrus", size: 24))
+                                        .shadow(color: .gold.opacity(0.4), radius: 5, x: 0, y: 0)
+                                }
+                                .offset(y: 80)
                             }
+                            .position(x: geometry.size.width - 150, y: 100)
                         }
                     }
                     
